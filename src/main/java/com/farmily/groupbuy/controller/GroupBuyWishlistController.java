@@ -23,7 +23,7 @@ public class GroupBuyWishlistController {
 	@Autowired
 	private GroupBuyService groupBuySvc;
 	
-	//加單筆團購到我的收藏底下的團購
+	//加單筆團購到我的收藏底下的團購收藏
 	@PostMapping("/{groupBuyId}")
 	public ResponseEntity<Void> addGroupBuyWishlist(@PathVariable Integer groupBuyId,
 	        										@AuthenticationPrincipal MemberUserDetails me) {
