@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{back-end/admin/layout}">
+<head>
+    <title>修改管理員</title>
+    <style>
+        .perm-label { display:block; font-weight:600; margin-bottom:.5rem; }
+        .perm-item { display:flex; align-items:flex-start; gap:.6rem; margin:0;
+            padding:.65rem .8rem; border:1px solid #e2e5e9; border-radius:.5rem;
+            background:#fff; cursor:pointer;
+            transition:border-color .15s, background .15s, box-shadow .15s; }
+        .perm-item:hover { border-color:#b9c0c8; background:#fafbfc; }
+        .perm-item input { flex:0 0 auto; width:16px; height:16px; margin-top:.15rem; cursor:pointer; }
+        .perm-item-body { display:flex; flex-direction:column; line-height:1.35; }
+        .perm-item-name { font-weight:600; color:#2b2f36; }
+        .perm-item-desc { font-size:.8rem; color:#7a828c; margin-top:.1rem; }
+        .perm-item:has(input:checked) { border-color:#2f9e57; background:#f2fbf5;
+            box-shadow:0 0 0 1px #2f9e57 inset; }
+        .perm-grid { display:grid; gap:.6rem;
+            grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); }
+        .perm-super { padding:.75rem; margin-bottom:.9rem;
+            border:1px solid #f0c98a; background:#fffaf0; border-radius:.5rem; }
+        .perm-super .perm-item { border-color:#eab764; }
+        .perm-super .perm-item:has(input:checked) { border-color:#e08a00;
+            background:#fff7e8; box-shadow:0 0 0 1px #e08a00 inset; }
+        .perm-super-hint { margin:.55rem 0 0; font-size:.78rem; color:#a86a00; }
+        .perm-divider { display:flex; align-items:center; gap:.6rem;
+            margin:.2rem 0 .7rem; font-size:.8rem; color:#98a0aa; }
+        .perm-divider::before, .perm-divider::after { content:"";
+            flex:1; height:1px; background:#e6e9ed; }
+        /* 權限被清空時的前端錯誤提示 */
+        .perm-error { color:#c0392b; font-size:.85rem; margin:.4rem 0 0; font-weight:600; }
+    </style>
+</head>
+<body>
+
+<h1 class="page-title" layout:fragment="pagetitle">修改管理員</h1>
+
+<div layout:fragment="content">
+    <div class="crumbs mb-3"><a th:href="@{/admin/admins}">← 回管理員清單</a></div>
+
+    <div class="card" style="max-width: 560px;">
+        <div class="card-body">
+            <form id="updateAdminForm" method="post" th:action="@{/admin/admins/{id}/update(id=${admin.adminId})}">
+                <div class="form-group">
+                    <label>Email（不可改）</label>
+                    <input type="text" class="form-control" th:value="${admin.adminEmail}" disabled/>
+                </div>
+                <div class="form-group">
+                    <label>姓名</label>
+                    <input type="text" name="updateName" class="form-control" th:value="${admin.adminName}" maxlength="50"/>
+                </div>
+                <div class="form-group">
+                    <label>狀態</label>
+                    <select name="updateStatus" class="form-control">
+                        <option value="ACTIVE"    th:selected="${admin.adminStatus == 'ACTIVE'}">ACTIVE</option>
+                        <option value="SUSPENDED" th:selected="${admin.adminStatus == 'SUSPENDED'}">SUSPENDED</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="perm-label">權限指派</label>
+
+                    <!-- 超級管理員權限：單獨劃分、醒目提示；已擁有者預先打勾 -->
+                    <div class="perm-super" th:each="perm : ${permissionListData}"
+                         th:if="${perm.code == 'ADMIN'}">
+                        <label class="perm-item">
+                            <input type="checkbox" name="updatePermissionCodes" th:value="${perm.code}"
+                                   th:checked="${admin.permissionCodes.contains(perm.code)}"/>
+                            <span class="perm-item-body">
+                                <span class="perm-item-name">超級管理員（<span th:text="${perm.name}">管理員管理</span>）</span>
+                                <span class="perm-item-desc" th:text="${perm.description}"></span>
+                            </span>
+                        </label>
+                        <p class="perm-super-hint">
+                            ⚠ 勾選後即擁有最高權限，可對其他管理員操作並調整所有權限，請謹慎指派。
+                        </p>
+                    </div>
+
+                    <div class="perm-divider">一般功能權限</div>
+
+                    <!-- 其餘功能權限：附範圍說明 -->
+                    <div class="perm-grid">
+                        <label th:each="perm : ${permissionListData}"
+                               th:unless="${perm.code == 'ADMIN'}" class="perm-item">
+                            <input type="checkbox" name="updatePermissionCodes" th:value="${perm.code}"
+                                   th:checked="${admin.permissionCodes.contains(perm.code)}"/>
+                            <span class="perm-item-body">
+                                <span class="perm-item-name" th:text="${perm.name}"></span>
+                                <span class="perm-item-desc" th:text="${perm.description}"></span>
+                            </span>
+                        </label>
+                    </div>
+                    <p id="updatePermError" class="perm-error" style="display:none;">⚠ 至少需保留一項權限</p>
+                </div>
+                <button type="submit" class="btn btn-success">儲存</button>
+                <a class="btn btn-outline-secondary ml-2" th:href="@{/admin/admins}">取消</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="extrascript">
+    <script>
+        // 修改管理員：至少需保留一項權限，否則不送出、留在本頁，直接提示（避免清空卻誤報「修改成功」）
+        document.getElementById('updateAdminForm').addEventListener('submit', function (e) {
+            var checked = this.querySelectorAll('input[name="updatePermissionCodes"]:checked').length;
+            var err = document.getElementById('updatePermError');
+            if (checked === 0) {
+                e.preventDefault();
+                err.style.display = 'block';
+                err.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            } else {
+                err.style.display = 'none';
+            }
+        });
+    </script>
+</th:block>
+</body>
+</html>

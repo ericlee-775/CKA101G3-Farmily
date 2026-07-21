@@ -1,0 +1,156 @@
+package com.farmily.blog.model;
+
+import com.farmily.blog.constant.BlogStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+
+import java.sql.Timestamp;
+
+@Entity
+@Table(name = "blog")
+public class Blog implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "blog_id", updatable = false)
+	private Integer blogId;
+
+	@Column(name = "blog_title")
+	private String blogTitle;
+
+	@Column(name = "user_id")
+	private Integer userId;
+
+	@Column(name = "farmer_id")
+	private Integer farmerId;
+
+	@Column(name = "blog_type_id")
+	private Integer blogTypeId;
+
+	@Column(name = "blog_content")
+	private String blogContent;
+
+	@Lob
+	@Column(name = "blog_img")
+	private byte[] blogImg;
+
+	@Column(name = "blog_like_count")
+	private Integer blogLikeCount;
+
+	@Column(name = "blog_time")
+	private Timestamp blogTime;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "blog_status")
+	private BlogStatus blogStatus;
+
+	@Transient   // @Transient = 這欄不對應資料表欄位，JPA 不會拿去存/建表，只是用來裝查詢帶回的顯示值
+	private String authorName;
+
+	@Transient
+	private String authorType;
+
+	public Blog() {
+		super();
+	}
+
+	public Integer getBlogId() {
+		return blogId;
+	}
+
+	public void setBlogId(Integer blogId) {
+		this.blogId = blogId;
+	}
+
+	public String getBlogTitle() {
+		return blogTitle;
+	}
+
+	public void setBlogTitle(String blogTitle) {
+		this.blogTitle = blogTitle;
+	}
+
+	public Integer getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Integer userId) {
+		this.userId = userId;
+	}
+
+	public Integer getFarmerId() {
+		return farmerId;
+	}
+
+	public void setFarmerId(Integer farmerId) {
+		this.farmerId = farmerId;
+	}
+
+	public Integer getBlogTypeId() {
+		return blogTypeId;
+	}
+
+	public void setBlogTypeId(Integer blogTypeId) {
+		this.blogTypeId = blogTypeId;
+	}
+
+	public String getBlogContent() {
+		return blogContent;
+	}
+
+	public void setBlogContent(String blogContent) {
+		this.blogContent = blogContent;
+	}
+
+	//不要讓圖片序列化
+	@JsonIgnore
+	public byte[] getBlogImg() {
+		return blogImg;
+	}
+
+	public void setBlogImg(byte[] blogImg) {
+		this.blogImg = blogImg;
+	}
+
+	public Integer getBlogLikeCount() {
+		return blogLikeCount;
+	}
+
+	public void setBlogLikeCount(Integer blogLikeCount) {
+		this.blogLikeCount = blogLikeCount;
+	}
+
+	public Timestamp getBlogTime() {
+		return blogTime;
+	}
+
+	public void setBlogTime(Timestamp blogTime) {
+		this.blogTime = blogTime;
+	}
+
+	public BlogStatus getBlogStatus() {
+		return blogStatus;
+	}
+
+	public void setBlogStatus(BlogStatus blogStatus) {
+		this.blogStatus = blogStatus;
+	}
+
+	public String getAuthorName() {
+		return authorName;
+	}
+
+	public void setAuthorName(String authorName) {
+		this.authorName = authorName;
+	}
+
+	public String getAuthorType() {
+		return authorType;
+	}
+
+	public void setAuthorType(String authorType) {
+		this.authorType = authorType;
+	}
+}

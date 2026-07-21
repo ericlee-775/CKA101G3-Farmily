@@ -1,0 +1,114 @@
+package com.farmily.product.dto;
+
+import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+/**
+ * 新增商品用的 DTO（白名單）。 只放「該由前端填」的欄位；避免 @ModelAttribute 直接綁 ProductVO 造成 mass
+ * assignment。 刻意不放的欄位（由後端決定，不讓 client 控制）： - productId ：主鍵，DB 自動產生 - farmerId
+ * ：小農 id，應取自登入者，不是 request 帶 - status ：上下架狀態，由後端給預設值（例如新增一律待審/下架） 圖片用
+ * MultipartFile，所以這支 API 仍走 multipart/form-data。
+ */
+public class ProductInsertDTO {
+
+	// 無參數建構式(表單繫結會用到)
+	public ProductInsertDTO() {
+	}
+
+	// 注意：這些驗證訊息在前端 FarmerProductsView.vue 的送出前檢查也抄了一份，改字記得兩邊同步
+	@NotNull(message = "請選擇商品分類")
+	private Integer subCatClassId; // 子分類(對應 ProductVO.subCategoryVO 的 sub_cat_class_id)
+	@NotBlank(message = "商品名稱不可為空")
+	private String productName; // 商品名稱
+	@NotNull(message = "請輸入零售價")
+	@Min(value = 0, message = "零售價不可為負數，請輸入0以上的整數")
+	private Integer retailPrice; // 零售價
+	@Min(value = 0, message = "團購價不可為負數，請輸入0以上的整數")
+	private Integer groupPrice; // 團購價
+	@NotBlank(message = "計價單位不可為空，例如：包/300g")
+	private String unitPricingMeasure; // 計價單位
+	private Boolean isGroupBuy; // 是否開團
+	private String description; // 商品描述
+	private MultipartFile productImage; // 商品圖片
+	private List<MultipartFile> productImages;// 商品圖片（多張，存 PRODUCT_IMAGE 表））
+
+	
+
+	public List<MultipartFile> getProductImages() {
+		return productImages;
+	}
+
+	public void setProductImages(List<MultipartFile> productImages) {
+		this.productImages = productImages;
+	}
+
+	public Integer getSubCatClassId() {
+		return subCatClassId;
+	}
+
+	public void setSubCatClassId(Integer subCatClassId) {
+		this.subCatClassId = subCatClassId;
+	}
+
+	public String getProductName() {
+		return productName;
+	}
+
+	public void setProductName(String productName) {
+		this.productName = productName;
+	}
+
+	public Integer getRetailPrice() {
+		return retailPrice;
+	}
+
+	public void setRetailPrice(Integer retailPrice) {
+		this.retailPrice = retailPrice;
+	}
+
+	public Integer getGroupPrice() {
+		return groupPrice;
+	}
+
+	public void setGroupPrice(Integer groupPrice) {
+		this.groupPrice = groupPrice;
+	}
+
+	public String getUnitPricingMeasure() {
+		return unitPricingMeasure;
+	}
+
+	public void setUnitPricingMeasure(String unitPricingMeasure) {
+		this.unitPricingMeasure = unitPricingMeasure;
+	}
+
+	public Boolean getIsGroupBuy() {
+		return isGroupBuy;
+	}
+
+	public void setIsGroupBuy(Boolean isGroupBuy) {
+		this.isGroupBuy = isGroupBuy;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public MultipartFile getProductImage() {
+		return productImage;
+	}
+
+	public void setProductImage(MultipartFile productImage) {
+		this.productImage = productImage;
+	}
+
+}
