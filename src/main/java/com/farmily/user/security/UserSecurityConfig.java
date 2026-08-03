@@ -34,7 +34,6 @@ public class UserSecurityConfig {
 		return new SessionRegistryImpl();
 	}
 
-	
 	// session 被銷毀（登出 / 逾時）時發事件，讓 SessionRegistry 自動移除紀錄，避免一直累積
 	@Bean
 	public HttpSessionEventPublisher httpSessionEventPublisher() {
